@@ -18,6 +18,7 @@ import scalaz._, Scalaz._
 import scalaz.syntax.monad._
 
 import org.apache.hadoop.fs.Path
+import org.apache.hadoop.fs.Path._
 
 import org.apache.hadoop.hive.conf.HiveConf
 import org.apache.hadoop.hive.conf.HiveConf.ConfVars.METASTOREWAREHOUSE
@@ -139,8 +140,6 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
       inner(List(dir)).map{case x => x._1}
     }
 
-
-
     if (append) {
       val execution = write(externalPath)
       execution.withSubConfig(modifyConfig)
@@ -156,8 +155,25 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
 
         counters <- write(externalPath)
 
-        newFiles <- Execution.fromHdfs(find(dst, "*.parquet"))
+        allFiles <- Execution.fromHdfs(find(dst, "*.parquet"))
+        _ <- Execution.from(println("allFiles: " + allFiles))
+
+        newFiles = allFiles.filterNot(oldFiles.toSet)
         _ <- Execution.from(println("newFiles: " + newFiles))
+
+        newPartitions = newFiles.map{case p => p.getParent()}.distinct
+        _ <- Execution.from(println("newPartitions: " + newPartitions))
+
+        toDelete = oldFiles.filter{case p => newPartitions.contains(p.getParent)}
+        _ <- Execution.from(println("toDelete: " + toDelete))
+
+        _ <- toDelete.map{case p => Execution.fromHdfs(Hdfs.delete(p))}.sequence
+
+/*
+        _ <- Execution.fromHive(Hive.queries(List(
+               s"USE DATABASE $database",
+               s"MSCK REPAIR TABLE $table")))
+               */
 
       } yield counters
     }
