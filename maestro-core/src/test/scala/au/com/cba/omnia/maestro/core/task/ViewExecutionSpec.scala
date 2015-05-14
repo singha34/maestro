@@ -91,7 +91,6 @@ View execution properties
     executesSuccessfully(exec) must_== ((4, 2))
 
     facts(
-      hiveWarehouse </> "normalhive.db" </> "by_first" </> "partition_first=A" </> "part-*.parquet" ==> noMatch,
       hiveWarehouse </> "normalhive.db" </> "by_first" </> "partition_first=A" </> "part-*.parquet" ==> recordCount(ParquetThermometerRecordReader[StringPair], 2),
       hiveWarehouse </> "normalhive.db" </> "by_first" </> "partition_first=B" </> "part-*.parquet" ==> recordCount(ParquetThermometerRecordReader[StringPair], 2)
     )
