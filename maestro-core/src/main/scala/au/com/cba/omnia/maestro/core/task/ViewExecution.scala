@@ -65,7 +65,6 @@ trait ViewExecution {
     table: HiveTable[A, ST], pipe: TypedPipe[A], append: Boolean = true
   ): Execution[Long] =
     if (append) {
-      println("APPEND")
       for {
         /* Creates the database upfront since when Hive is run concurrently uzing `zip` all but the
          * first attempt fails.
@@ -75,7 +74,6 @@ trait ViewExecution {
         n <- table.writeExecution(pipe, append).map(_.get(StatKeys.tuplesWritten).getOrElse(0L))
       } yield n
     } else {
-      println("NOT APPEND")
       for {
         /* Creates the database upfront since when Hive is run concurrently uzing `zip` all but the
          * first attempt fails.
