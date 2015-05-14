@@ -145,58 +145,21 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
       val execution = write(externalPath)
       execution.withSubConfig(modifyConfig)
     } else {
-    /*
-      val execution = write(externalPath)
-      execution.withSubConfig(identity)
-      */
-
-/*
       for {
-        _ <- setup
+        dst <- setup
+
+        _ <- Execution.from(println("dst: " + dst.toString))
+
+        // get leaf dir list of dst
+        oldFiles <- Execution.fromHdfs(find(dst, "*.parquet"))
+        _ <- Execution.from(println("oldFiles: " + oldFiles))
+
         counters <- write(externalPath)
+
+        newFiles <- Execution.fromHdfs(find(dst, "*.parquet"))
+        _ <- Execution.from(println("newFiles: " + newFiles))
+
       } yield counters
-      */
-
-      Execution.from(println(s"externalPath: $externalPath")) >>
-      Execution.fromHdfs(Hdfs.createTempDir()).bracket(
-        //tmpDir => Execution.fromHdfs(Hdfs.delete(tmpDir, true))
-        tmpDir => Execution.from(println(tmpDir))
-      )(
-        tmpDir => for {
-          dst <- setup
-
-          _ <- Execution.from(println("dst: " + dst.toString))
-
-          // get leaf dir list of dst
-          oldFiles <- Execution.fromHdfs(find(dst, "*.parquet"))
-          _ <- Execution.from(println("oldFiles: " + oldFiles))
-
-          counters <- write(externalPath)
-          // get leaf dir list of dst, compare to previous and remove old parquet files
-          // in partitions that existed earlier
-        } yield counters
-      )
-
-/*
-      def moveFiles(src: Path, dst: Path): Hdfs[Unit] = for {
-        files <- Hdfs.files(src, "*.parquet")
-        time  =  System.currentTimeMillis
-        _     <- Hdfs.mkdirs(dst)
-        _     <- files.zipWithIndex.traverse {
-                   case (file, idx) => Hdfs.move(file, new Path(dst, f"part-$time-$idx%05d.parquet"))
-                 }
-      } yield ()
-
-      setup.flatMap(dst => Execution.fromHdfs(Hdfs.createTempDir()).bracket(
-        tmpDir => Execution.fromHdfs(Hdfs.delete(tmpDir, true))
-      )(
-        tmpDir => for {
-          counters <- write(Some(tmpDir.toString))
-          _        <- Execution.fromHdfs(moveFiles(tmpDir, dst))
-          //_        <- Execution.fromHive(Hive.query(s"MSCK REPAIR TABLE $table"))
-        } yield counters
-      ))
-      */
     }
   }
 }
