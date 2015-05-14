@@ -94,12 +94,6 @@ View execution properties
       hiveWarehouse </> "normalhive.db" </> "by_first" </> "partition_first=A" </> "part-*.parquet" ==> recordCount(ParquetThermometerRecordReader[StringPair], 2),
       hiveWarehouse </> "normalhive.db" </> "by_first" </> "partition_first=B" </> "part-*.parquet" ==> recordCount(ParquetThermometerRecordReader[StringPair], 2)
     )
-
-/*
-    facts(
-      hiveWarehouse </> "normalhive.db" </> "by_first" </> "partition_first=B" </> "part-00000-*.parquet" ==> recordCount(ParquetThermometerRecordReader[StringPair], 2)
-    )
-    */
   }
 
   def normalHiveAppend = {

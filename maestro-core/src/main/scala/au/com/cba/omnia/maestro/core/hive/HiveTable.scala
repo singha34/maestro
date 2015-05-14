@@ -74,32 +74,11 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
   override def writeExecution(pipe: TypedPipe[A], append: Boolean = true): Execution[ExecutionCounters] = {
     def modifyConfig(config: Config) = ConfHelper.createUniqueFilenames(config)
 
-    /* TODO: https://github.com/CommBank/maestro/issues/382
-
-     * make a new exec that writesto a PartitionParquetScroogeSink (if such a thing exists?) and
-         writes to a different dir,
-     * then for any partitions that were newly created:
-       * remove the existing partitions of the same names in the old table
-       * copy in the new one
-       * create a new parquet table based off the modified structure if there was no table before,
-           else if copying into an existing table,
-             do an MSCK REPAIR TABLE as a shortcut, or
-                more correctly look at the hive docs about how to add partitions
-
-        -- createTable will throw an error if the table already exists but has different schema,
-           in which case fail the whole job (propagate that erorr, already done)
-     */
-
     // Creates the hive table and gets its path
     val setup = Execution.fromHive(
       Hive.createParquetTable[A](database, table, partitionMetadata, externalPath.map(new Path(_))) >>
       Hive.getPath(database, table)
     )
-
-/*
-    def tableDescriptor(path: Option[Path]) =
-      Util.createHiveTableDescriptor[A](database, table, partitionMetadata, ParquetFormat, path)
-      */
 
     // Runs the scalding job and gets the counters
     def write(path: Option[String]) = pipe
@@ -144,35 +123,34 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
       val execution = write(externalPath)
       execution.withSubConfig(modifyConfig)
     } else {
+      // https://github.com/CommBank/maestro/issues/382
+
       for {
         dst <- setup
 
-        _ <- Execution.from(println("dst: " + dst.toString))
-
-        // get leaf dir list of dst
+        // Get list of original parquet files
         oldFiles <- Execution.fromHdfs(find(dst, "*.parquet"))
-        _ <- Execution.from(println("oldFiles: " + oldFiles))
 
+        // Run job
         counters <- write(externalPath)
 
+        // Updated list of all parquet files, including obsolete
         allFiles <- Execution.fromHdfs(find(dst, "*.parquet"))
-        _ <- Execution.from(println("allFiles: " + allFiles))
 
+        // Files which were created by this job
         newFiles = allFiles.filterNot(oldFiles.toSet)
-        _ <- Execution.from(println("newFiles: " + newFiles))
 
+        // Partitions which were updated by this job
         newPartitions = newFiles.map{case p => p.getParent()}.distinct
-        _ <- Execution.from(println("newPartitions: " + newPartitions))
 
+        // Obsolete files: existed prior to this job, in partitions which have been updated
         toDelete = oldFiles.filter{case p => newPartitions.contains(p.getParent)}
-        _ <- Execution.from(println("toDelete: " + toDelete))
 
+        // Delete obsolete files
         _ <- toDelete.map{case p => Execution.fromHdfs(Hdfs.delete(p))}.sequence
 
-        _ <- Execution.fromHive(Hive.query(
-               s"""
-                 MSCK REPAIR TABLE $table
-               """))
+        // Repair metadata for hive table
+        _ <- Execution.fromHive(Hive.query(s"MSCK REPAIR TABLE $table;"))
 
       } yield counters
     }
