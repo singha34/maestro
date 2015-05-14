@@ -169,11 +169,10 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
 
         _ <- toDelete.map{case p => Execution.fromHdfs(Hdfs.delete(p))}.sequence
 
-/*
-        _ <- Execution.fromHive(Hive.queries(List(
-               s"USE DATABASE $database",
-               s"MSCK REPAIR TABLE $table")))
-               */
+        _ <- Execution.fromHive(Hive.query(
+               s"""
+                 MSCK REPAIR TABLE $table
+               """))
 
       } yield counters
     }
