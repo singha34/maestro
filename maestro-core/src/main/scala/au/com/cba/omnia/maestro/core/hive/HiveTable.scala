@@ -15,6 +15,7 @@
 package au.com.cba.omnia.maestro.core.hive
 
 import scalaz._, Scalaz._
+import scalaz.syntax.monad._
 
 import org.apache.hadoop.fs.Path
 
@@ -106,6 +107,40 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
       .getAndResetCounters
       .map(_._2)
 
+    def find(dir: Path, globPattern: String = "*") = {
+      def filesDirs(dir: Path) = for {
+        files <- Hdfs.files(dir, globPattern)
+        allFiles <- Hdfs.files(dir)
+        dirs <- allFiles.filterM(Hdfs.isDirectory)
+      } yield (files, dirs)
+
+      def pairConcat(x: (List[A], List[A]), y: (List[A], List[A])) =
+          (x._1 ++ y._1, x._2 ++ y._2)
+
+      def f(b: (List[Path], List[Path]), dir: Path) = for {
+        fds <- filesDirs(dir)
+        files = b._1 ++ fds._1
+        dirs = b._2 ++ fds._2
+      } yield (files, dirs)
+
+      def inner(dirs: List[Path]): Hdfs[(List[Path], List[Path])] = {
+        val nope = (List[Path](), List[Path]())
+        if (dirs.isEmpty) {
+          Hdfs.value(nope)
+        } else {
+          for {
+            fds1 <- dirs.foldLeftM((List[Path](), List[Path]()))(f)
+            fds2 <- inner(fds1._2)
+            fds = (fds1._1 ++ fds2._1, fds2._2)
+          } yield (fds)
+        }
+      }
+
+      inner(List(dir)).map{case x => x._1}
+    }
+
+
+
     if (append) {
       val execution = write(externalPath)
       execution.withSubConfig(modifyConfig)
@@ -133,7 +168,7 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
           _ <- Execution.from(println("dst: " + dst.toString))
 
           // get leaf dir list of dst
-          oldFiles <- Execution.fromHdfs(Hdfs.files(dst, "*.parquet"))
+          oldFiles <- Execution.fromHdfs(find(dst, "*.parquet"))
           _ <- Execution.from(println("oldFiles: " + oldFiles))
 
           counters <- write(externalPath)
