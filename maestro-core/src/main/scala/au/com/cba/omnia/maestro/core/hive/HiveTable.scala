@@ -81,7 +81,8 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
     )
 
     // Runs the scalding job and gets the counters
-    def write(path: Option[String]) = pipe
+    def write(path: Option[String]) =
+      pipe
       .map(v => partition.extract(v) -> v)
       .writeExecution(PartitionHiveParquetScroogeSink[B, A](database, table, partitionMetadata, path, append))
       .getAndResetCounters
