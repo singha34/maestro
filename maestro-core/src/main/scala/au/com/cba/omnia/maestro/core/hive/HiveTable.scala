@@ -120,8 +120,10 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
     }
 
     if (append) {
-      val execution = write(externalPath)
-      execution.withSubConfig(modifyConfig)
+      for {
+        _        <- setup
+        counters <- write(externalPath).withSubConfig(modifyConfig)
+      } yield counters
     } else {
       // https://github.com/CommBank/maestro/issues/382
 
