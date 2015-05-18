@@ -35,7 +35,7 @@ ScroogeDecodeMacro
   implicit val encodeTypes = Macros.mkEncode[Types]
   implicit val decodeTypes = Macros.mkDecode[Types]
 
-  val noneVal = "\0"
+  val noneVal = "\u0000"
 
   def decode = prop { (types: Types) =>
     decodeTypes.decode(noneVal, Encode.encode(noneVal, types)) must_== DecodeOk(types)

@@ -14,12 +14,10 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import au.com.cba.omnia.maestro.core.codec._
-import au.com.cba.omnia.maestro.core.data._
-import com.twitter.scrooge._
-
 import scala.reflect.macros.Context
 import scala.annotation.StaticAnnotation
+
+import com.twitter.scrooge.ThriftStruct
 
 class body(tree: Any) extends StaticAnnotation
 

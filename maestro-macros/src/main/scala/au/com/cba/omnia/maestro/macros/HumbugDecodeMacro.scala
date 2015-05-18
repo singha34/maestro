@@ -93,7 +93,7 @@ object HumbugDecodeMacro {
 
     def decodeUnknownSource(xs: List[(MethodSymbol, Int)]) = q"""
       if (source.length < $size) {
-        DecodeError(source, position, NotEnoughInput($size, $typeName))
+        DecodeError[(List[String], Int, $typ)](source, position, NotEnoughInput($size, $typeName))
       } else {
         val fields = source.take($size).toArray
         var index  = -1
@@ -103,7 +103,7 @@ object HumbugDecodeMacro {
           ..${decodeUnknowns(xs)}
           DecodeOk((source.drop($size), position + $size, struct))
         } catch {
-          case NonFatal(e) => DecodeError(
+          case NonFatal(e) => DecodeError[(List[String], Int, $typ)](
             source.drop(index - position),
             position + index,
             ParseError(fields(index), tag, That(e))

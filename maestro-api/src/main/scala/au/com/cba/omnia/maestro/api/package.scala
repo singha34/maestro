@@ -14,8 +14,6 @@
 
 package au.com.cba.omnia.maestro
 
-import com.twitter.scrooge.ThriftStruct
-
 package object api {
   type MaestroJob      = au.com.cba.omnia.maestro.core.scalding.MaestroJob
   type MacroSupport    = au.com.cba.omnia.maestro.macros.MacroSupport

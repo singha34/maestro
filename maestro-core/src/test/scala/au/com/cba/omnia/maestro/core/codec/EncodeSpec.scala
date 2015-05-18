@@ -48,20 +48,22 @@ Encode witness
 
 """
 
+  val noneVal = "\u0000"
+
   def primitive[A : Arbitrary : Encode](f: A => String) = prop((v: A) =>
-    Encode.encode("\0", v) must_== List(f(v))
+    Encode.encode(noneVal, v) must_== List(f(v))
   )
 
   def option = {
-    (Encode.encode("\0",   Option(3))            must_== List("3"))    and
-    (Encode.encode("\0",   Option.empty[Int])    must_== List("\0"))   and
-    (Encode.encode("\0",   Option("test"))       must_== List("test")) and
-    (Encode.encode("\0",   Option.empty[String]) must_== List("\0"))   and
-    (Encode.encode("null", Option.empty[String]) must_== List("null"))
+    (Encode.encode(noneVal,   Option(3))            must_== List("3"))     and
+    (Encode.encode(noneVal,   Option.empty[Int])    must_== List(noneVal)) and
+    (Encode.encode(noneVal,   Option("test"))       must_== List("test"))  and
+    (Encode.encode(noneVal,   Option.empty[String]) must_== List(noneVal)) and
+    (Encode.encode("null", Option.empty[String])    must_== List("null"))
   }
 
   def tuples = prop((b: Boolean, i: Int, l: Long, d: Double, s: String) =>
-    Encode.encode("\0", (b, i, l, d, s, (b, i, l, d, s))) must_== twice(List(
+    Encode.encode(noneVal, (b, i, l, d, s, (b, i, l, d, s))) must_== twice(List(
         b.toString
       , i.toString
       , l.toString
@@ -93,5 +95,5 @@ Encode witness
   case class Example(s: String, l: Long, n: Nested)
 
   implicit def EncodeIntEqual: Equal[Encode[Int]] =
-    Equal.equal((a, b) => a.run("\0", 0) == b.run("\0", 0))
+    Equal.equal((a, b) => a.run(noneVal, 0) == b.run(noneVal, 0))
 }

@@ -22,7 +22,7 @@ import scala.reflect.runtime.currentMirror
 import scala.util.control.NonFatal
 import scala.util.hashing.MurmurHash3
 
-import scalaz.{Tag => _, _}, Scalaz._
+import scalaz.\/
 
 import org.apache.hadoop.io.{BytesWritable, NullWritable}
 import org.apache.hadoop.fs.{FileSystem, Path}

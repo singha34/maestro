@@ -4,14 +4,14 @@ import org.apache.hadoop.conf.Configuration
 
 import org.specs2.execute.AsResult
 import org.specs2.matcher.FileMatchers
-import org.specs2.specification.AroundExample
+import org.specs2.specification.AroundEach
 
 import au.com.cba.omnia.thermometer.core.{ThermometerSpec, Thermometer}, Thermometer._
 
 import au.com.cba.omnia.permafrost.test.HdfsMatchers
 
 class MaestroHdfsSpec extends ThermometerSpec
-  with AroundExample
+  with AroundEach
   with FileMatchers
   with HdfsMatchers { def is = s2"""
 

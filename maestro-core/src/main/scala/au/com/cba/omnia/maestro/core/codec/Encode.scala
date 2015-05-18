@@ -12,12 +12,11 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package au.com.cba.omnia.maestro.core
-package codec
+package au.com.cba.omnia.maestro.core.codec
 
-import au.com.cba.omnia.maestro.core.data._
 import scalaz._, Scalaz._
-import shapeless._
+
+import shapeless.{ProductTypeClass, ProductTypeClassCompanion, HList}
 
 /**
   * Represents `A` as a list of string.
@@ -27,11 +26,11 @@ import shapeless._
 case class Encode[A](run: (String, A) => List[String]) {
   /** Contramaps across the input.*/
   def contramap[B](f: B => A): Encode[B] =
-    Encode[B]((none, a) => run(none, f(a)))
+    Encode[B]((none: String,  a: B)  => run(none, f(a)))
 }
 
 /** Encode companion object.*/
-object Encode extends TypeClassCompanion[Encode] {
+object Encode extends ProductTypeClassCompanion[Encode] {
   /** Encodes `A` as a list of string. `None` are encoded as the supplied `none` string.*/
   def encode[A : Encode](none: String, a: A): List[String] =
     Encode.of[A].run(none, a)
@@ -41,7 +40,7 @@ object Encode extends TypeClassCompanion[Encode] {
     implicitly[Encode[A]]
 
   def value[A](run: A => String): Encode[A] =
-    Encode[A]((none, a) => run(a) :: Nil)
+    Encode[A]((none: String, a: A) => run(a) :: Nil)
 
   implicit val BooleanEncode: Encode[Boolean] =
     value(_.toString)
@@ -70,10 +69,7 @@ object Encode extends TypeClassCompanion[Encode] {
   implicit def VectorEncode[A : Encode]: Encode[Vector[A]] =
     Encode.of[List[A]].contramap(_.toList)
 
-  implicit def ProductEncode[A]: Encode[A] =
-    macro TypeClass.derive_impl[Encode, A]
-
-  implicit def EncodeTypeClass: ProductTypeClass[Encode] = new ProductTypeClass[Encode] {
+  val typeClass: ProductTypeClass[Encode] = new ProductTypeClass[Encode] {
     def emptyProduct =
       Encode((_, _) => List())
 

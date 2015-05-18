@@ -24,8 +24,7 @@ import org.scalacheck.Arbitrary, Arbitrary._
 
 import org.specs2.matcher.Matcher
 
-import au.com.cba.omnia.thermometer.core.ThermometerSpec
-import au.com.cba.omnia.thermometer.hive.HiveSupport
+import au.com.cba.omnia.thermometer.hive.ThermometerHiveSpec
 
 import au.com.cba.omnia.omnitool.Result
 import au.com.cba.omnia.omnitool.test.OmnitoolProperties.resultantMonad
@@ -44,7 +43,7 @@ object Executions {
   def either = Execution.fromEither("error".left)
 }
 
-object RichExecutionSpec extends ThermometerSpec with HiveSupport { def is = s2"""
+object RichExecutionSpec extends ThermometerHiveSpec { def is = s2"""
 
 Rich Execution
 ==============

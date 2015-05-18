@@ -12,14 +12,15 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package au.com.cba.omnia.maestro.core
-package scalding
+package au.com.cba.omnia.maestro.core.scalding
 
 import cascading.flow.FlowDef
 import cascading.pipe.Pipe
-import com.twitter.scalding._, typed.TypedSink, Dsl._, TDsl._
-import scalaz._, Scalaz._
 
+import com.twitter.scalding.{FieldConversions, Source, TypedPipe, TypedPsv}
+import com.twitter.scalding.typed.TypedSink
+
+import scalaz.{\/, -\/, \/-}
 
 object Errors extends FieldConversions {
 

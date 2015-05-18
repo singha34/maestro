@@ -26,24 +26,22 @@ import cascading.tap.hadoop.HfsProps
 import au.com.cba.omnia.ebenezer.scrooge.hive.Hive
 import au.com.cba.omnia.ebenezer.ParquetLogging
 
-import au.com.cba.omnia.thermometer.core.{ThermometerSpec, Thermometer}, Thermometer._
+import au.com.cba.omnia.thermometer.core.Thermometer._
 import au.com.cba.omnia.thermometer.fact.Fact
-import au.com.cba.omnia.thermometer.hive.HiveSupport
+import au.com.cba.omnia.thermometer.hive.ThermometerHiveSpec
 
 import au.com.cba.omnia.maestro.core.clean.Clean
 import au.com.cba.omnia.maestro.core.filter.RowFilter
 import au.com.cba.omnia.maestro.core.hive.HiveTable
 import au.com.cba.omnia.maestro.core.partition.Partition
-import au.com.cba.omnia.maestro.core.scalding.ExecutionOps._
 import au.com.cba.omnia.maestro.core.split.Splitter
 import au.com.cba.omnia.maestro.core.time.TimeSource
 import au.com.cba.omnia.maestro.core.validate.Validator
 
 import au.com.cba.omnia.maestro.core.thrift.scrooge.StringPair
 
-object LoadViewExecutionSpec extends ThermometerSpec
+object LoadViewExecutionSpec extends ThermometerHiveSpec
     with StringPairSupport
-    with HiveSupport
     with ParquetLogging { def is = s2"""
 
 Load + View execution properties

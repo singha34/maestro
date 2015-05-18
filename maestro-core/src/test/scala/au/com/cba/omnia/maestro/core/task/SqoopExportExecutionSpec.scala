@@ -198,6 +198,7 @@ object SqoopExportExecutionSpec
       )
     """).execute.apply()
 
+    ()
   }
 
   def testObjTableData(

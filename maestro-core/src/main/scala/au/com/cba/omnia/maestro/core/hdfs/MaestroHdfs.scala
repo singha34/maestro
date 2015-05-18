@@ -47,7 +47,7 @@ import Guard.{NotProcessed, IngestionComplete}
   * case class WidgetSalesConfig[T <: ThriftStruct : Decode : Tag : Manifest](...)
   * {
   *   ...
-  *   val inputs = Guard.expandTransferredPaths(s"${maestro.hdfsRoot}/source/${maestro.source}/${maestro.tablename}/*/*/*")
+  *   val inputs = Guard.expandTransferredPaths(s"${maestro.hdfsRoot}/source/${maestro.source}/${maestro.tablename}/part*")
   * }}}
   *
   * Notice that `Guard.expandTransferredPaths` executes immediately when the class is instantiated (returning a list of
@@ -63,7 +63,7 @@ import Guard.{NotProcessed, IngestionComplete}
   * case class WidgetSalesConfig[T <: ThriftStruct : Decode : Tag : Manifest](...)
   * {
   *   ...
-  *   val inputGlob = s"${maestro.hdfsRoot}/source/${maestro.source}/${maestro.tablename}/*/*/*"
+  *   val inputGlob = s"${maestro.hdfsRoot}/source/${maestro.source}/${maestro.tablename}/part*"
   * }}}
   *
   * Later in the file, we see where `inputs` was being used:

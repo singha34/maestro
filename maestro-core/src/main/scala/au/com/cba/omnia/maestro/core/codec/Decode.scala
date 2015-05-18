@@ -12,17 +12,14 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package au.com.cba.omnia.maestro.core
-package codec
+package au.com.cba.omnia.maestro.core.codec
 
 import scala.util.control.NonFatal
 import scala.reflect.runtime.universe.{typeOf, WeakTypeTag}
 
 import scalaz._, Scalaz._, \&/._
 
-import shapeless.{ProductTypeClass, TypeClassCompanion}
-
-import au.com.cba.omnia.maestro.core.data._
+import shapeless.{ProductTypeClass, ProductTypeClassCompanion}
 
 /**
   * Decoder for a list of strings.
@@ -56,7 +53,7 @@ case class Decode[A](run: (String, List[String], Int) => DecodeResult[(List[Stri
 }
 
 /** Encode companion object.*/
-object Decode extends TypeClassCompanion[Decode] {
+object Decode extends ProductTypeClassCompanion[Decode] {
   /** Encodes `A` as a list of string. `None` are replaced with the supplied `none` string.*/
   def decode[A: Decode](none: String, source: List[String]): DecodeResult[A] =
     Decode.of[A].decode(none, source)
@@ -124,10 +121,7 @@ object Decode extends TypeClassCompanion[Decode] {
       loop(DecodeOk(Vector()), source, n)
     })
 
-  implicit def ProductDecode[A]: Decode[A] =
-    macro shapeless.TypeClass.derive_impl[Decode, A]
-
-  implicit def DecodeTypeClass: ProductTypeClass[Decode] = new ProductTypeClass[Decode] {
+  val typeClass: ProductTypeClass[Decode] = new ProductTypeClass[Decode] {
     import shapeless._
 
     def emptyProduct =

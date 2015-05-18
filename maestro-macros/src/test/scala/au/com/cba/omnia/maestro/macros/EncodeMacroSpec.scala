@@ -31,10 +31,10 @@ EncodeMacro
 
 """
 
-  implicit val encode = Macros.mkEncode[Types]
+  implicit val encode: Encode[Types] = Macros.mkEncode[Types]
 
   def test = prop { (x: Types) =>
-    val none = "\0"
+    val none = "\u0000"
     val y = x.copy(optStringField = x.optStringField.map(a => if (a == none) "other" else a))
 
     val expected = List(

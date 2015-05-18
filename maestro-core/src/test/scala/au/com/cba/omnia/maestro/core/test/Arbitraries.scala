@@ -12,17 +12,16 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package au.com.cba.omnia.maestro.core
-package test
+package au.com.cba.omnia.maestro.core.test
 
-import au.com.cba.omnia.maestro.core.data._
-import au.com.cba.omnia.maestro.core.codec._
+import scalaz._, Scalaz._, \&/.These
 
-import scalaz._, Scalaz._, \&/._
 import scalaz.scalacheck.ScalazArbitrary._
 import scalaz.scalacheck.ScalaCheckBinding._
-import org.scalacheck._, Arbitrary._
 
+import org.scalacheck.{Arbitrary, Gen}, Arbitrary.arbitrary
+
+import au.com.cba.omnia.maestro.core.codec._
 
 object Arbitraries {
   implicit def ReasonArbitrary: Arbitrary[Reason] =

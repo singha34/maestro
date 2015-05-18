@@ -18,8 +18,6 @@ import java.io.{BufferedReader, FileReader, File}
 
 import scala.util.matching.Regex
 
-import scalaz._, Scalaz._
-
 import org.slf4j.{Logger, LoggerFactory}
 
 import org.apache.commons.io.input.ReversedLinesFileReader
@@ -245,7 +243,7 @@ object UploadEx {
 
   def matcher(conf: UploadConfig): Execution[List[DataFile]] = for {
     _     <- Execution.from {
-               logger.info("Start of pattern matching from ${conf.localIngestPath}")
+               logger.info(s"Start of pattern matching from ${conf.localIngestPath}")
                logger.info(conf.prettyPrint)
              }
     files <- Execution.fromEither(Input.findFiles(

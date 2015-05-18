@@ -139,15 +139,27 @@ case class UnpartitionedHiveTable[A <: ThriftStruct : Manifest](
 object HiveTable {
   /** Information need to address/describe a specific partitioned hive table.*/
   def apply[A <: ThriftStruct : Manifest, B : Manifest : TupleSetter](
+    database: String, table: String, partition: Partition[A, B]
+  ): HiveTable[A, (B, A)] =
+    PartitionedHiveTable(database, table, partition, None)
+
+  /** Information need to address/describe a specific partitioned hive table.*/
+  def apply[A <: ThriftStruct : Manifest, B : Manifest : TupleSetter](
     database: String, table: String, partition: Partition[A, B], path: String
   ): HiveTable[A, (B,A)] =
     PartitionedHiveTable(database, table, partition, Some(path))
 
   /** Information need to address/describe a specific partitioned hive table.*/
   def apply[A <: ThriftStruct : Manifest, B : Manifest : TupleSetter](
-    database: String, table: String, partition: Partition[A, B], pathOpt: Option[String] = None
+    database: String, table: String, partition: Partition[A, B], pathOpt: Option[String]
   ): HiveTable[A, (B, A)] =
     PartitionedHiveTable(database, table, partition, pathOpt)
+
+  /** Information need to address/describe a specific unpartitioned hive table.*/
+  def apply[A <: ThriftStruct : Manifest](
+    database: String, table: String
+  ): HiveTable[A, A] =
+    UnpartitionedHiveTable(database, table, None)
 
   /** Information need to address/describe a specific unpartitioned hive table.*/
   def apply[A <: ThriftStruct : Manifest](
@@ -157,7 +169,7 @@ object HiveTable {
 
   /** Information need to address/describe a specific unpartitioned hive table.*/
   def apply[A <: ThriftStruct : Manifest](
-    database: String, table: String, pathOpt: Option[String] = None
+    database: String, table: String, pathOpt: Option[String]
   ): HiveTable[A, A] =
     UnpartitionedHiveTable(database, table, pathOpt)
 }

@@ -16,9 +16,7 @@ package au.com.cba.omnia.maestro.macros
 
 import scala.reflect.macros.Context
 
-import com.twitter.scrooge._
-
-import au.com.cba.omnia.maestro.core.codec._
+import com.twitter.scrooge.ThriftStruct
 
 import au.com.cba.omnia.humbug.HumbugThriftStruct
 

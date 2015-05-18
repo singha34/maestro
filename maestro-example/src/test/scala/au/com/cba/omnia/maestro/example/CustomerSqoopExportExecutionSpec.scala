@@ -77,6 +77,8 @@ CustomerSqoopExportExecutionSpec test
           sub_cat varchar(20),
           balance integer)
       """).execute.apply()
+
+      ()
     }
 
     def tableData(

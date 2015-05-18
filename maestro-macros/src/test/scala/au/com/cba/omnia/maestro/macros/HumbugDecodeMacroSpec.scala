@@ -38,7 +38,7 @@ HumbugDecodeMacro
   implicit val encodeLarge = Macros.mkEncode[Large]
   implicit val decodeLarge = Macros.mkDecode[Large]
 
-  val noneVal = "\0"
+  val noneVal = "\u0000"
 
   def decode = prop { (types: Types) =>
     decodeTypes.decode(noneVal, Encode.encode(noneVal, types)) must_== DecodeOk(types)

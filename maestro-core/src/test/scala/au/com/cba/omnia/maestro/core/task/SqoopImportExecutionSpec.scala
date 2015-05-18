@@ -25,7 +25,7 @@ import scalikejdbc.{SQL, AutoSession, ConnectionPool}
 
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 
-import org.specs2.specification.BeforeExample
+import org.specs2.specification.BeforeEach
 
 import au.com.cba.omnia.parlour.SqoopSyntax.{ParlourImportDsl,TeradataParlourImportDsl}
 
@@ -37,7 +37,6 @@ import au.com.cba.omnia.thermometer.core.{Thermometer, ThermometerRecordReader, 
 
 object SqoopImportExecutionSpec
   extends ThermometerSpec
-  with BeforeExample
   with SqoopExecution { def is = s2"""
   Sqoop Import Execution test
   ===========================
@@ -200,9 +199,10 @@ object SqoopImportExecutionSpec
     )
   }
 
-  override def before: Any = tableSetup(
-    connectionString, username, password, importTableName
-  )
+  override def before = {
+    super.before
+    tableSetup(connectionString, username, password, importTableName)
+  }
 
   object ImportPathFact {
     def apply(actualPath: String) = Fact(_ => actualPath must beEqualTo(s"$hdfsLandingPath/$timePath"))

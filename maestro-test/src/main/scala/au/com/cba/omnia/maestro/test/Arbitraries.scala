@@ -14,7 +14,7 @@
 
 package au.com.cba.omnia.maestro.test
 
-import scalaz._, Scalaz._, \&/._
+import scalaz._, Scalaz._
 
 import scalaz.scalacheck.ScalazArbitrary._
 import scalaz.scalacheck.ScalaCheckBinding._

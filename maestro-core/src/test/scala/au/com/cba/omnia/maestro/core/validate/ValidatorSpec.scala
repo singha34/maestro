@@ -12,10 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package au.com.cba.omnia.maestro.core
-package validate
-
-import scalaz._, Scalaz._
+package au.com.cba.omnia.maestro.core.validate
 
 import org.scalacheck.Arbitrary
 

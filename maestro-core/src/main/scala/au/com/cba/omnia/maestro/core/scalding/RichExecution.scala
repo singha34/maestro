@@ -16,7 +16,7 @@ package au.com.cba.omnia.maestro.core.scalding
 
 import scala.concurrent.Future
 
-import scalaz._, Scalaz._
+import scalaz.{\/, Monad}
 import scalaz.\&/.{These, This, That, Both}
 
 import com.twitter.scalding.{Config, Execution}
@@ -31,8 +31,6 @@ import au.com.cba.omnia.ebenezer.scrooge.hive.Hive
 
 /** Pimps an Execution instance. */
 case class RichExecution[A](execution: Execution[A]) {
-  import ExecutionOps._
-
   def withSubConfig(modifyConfig: Config => Config): Execution[A] =
     Execution.getConfigMode.flatMap { case (config, mode) =>
       Execution.fromFuture(cec => execution.run(modifyConfig(config), mode)(cec))

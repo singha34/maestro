@@ -52,7 +52,7 @@ Decode witness
 
 """
 
-  val noneVal = "\0"
+  val noneVal = "\u0000"
 
   def primitive[A : Arbitrary : Decode : Encode] = prop { (v: A) =>
     Decode.decode(noneVal, Encode.encode(noneVal, v)) must_== DecodeOk(v)

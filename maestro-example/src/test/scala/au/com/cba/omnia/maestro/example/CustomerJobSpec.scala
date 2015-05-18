@@ -14,8 +14,8 @@
 
 package au.com.cba.omnia.maestro.example
 
-import au.com.cba.omnia.thermometer.core.{ThermometerSpec, Thermometer}, Thermometer._
-import au.com.cba.omnia.thermometer.hive.HiveSupport
+import au.com.cba.omnia.thermometer.core.Thermometer._
+import au.com.cba.omnia.thermometer.hive.ThermometerHiveSpec
 import au.com.cba.omnia.thermometer.fact.PathFactoids._
 
 import au.com.cba.omnia.ebenezer.test.ParquetThermometerRecordReader
@@ -26,9 +26,8 @@ import au.com.cba.omnia.maestro.test.Records
 import au.com.cba.omnia.maestro.example.thrift.{Customer, Account}
 
 object CustomerJobSpec
-  extends ThermometerSpec
-  with Records
-  with HiveSupport { def is = s2"""
+  extends ThermometerHiveSpec
+  with Records { def is = s2"""
 
 Customer Job
 ============

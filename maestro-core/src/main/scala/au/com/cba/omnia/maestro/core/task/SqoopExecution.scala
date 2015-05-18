@@ -27,15 +27,12 @@ import scalaz.Monoid
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.io.compress.{GzipCodec, CompressionCodec}
 
-//import com.cloudera.sqoop.SqoopOptions
-
 import cascading.flow.FlowDef
 
 import com.twitter.scalding._
 
 import com.cba.omnia.edge.source.compressible.CompressibleTypedTsv
 
-// import au.com.cba.omnia.parlour._
 import au.com.cba.omnia.parlour.SqoopSyntax.{ParlourExportDsl, ParlourImportDsl}
 import au.com.cba.omnia.parlour.{SqoopExecution => ParlourExecution, ParlourExportOptions, ParlourImportOptions, ParlourOptions}
 
@@ -240,12 +237,13 @@ object SqoopExecutionTest {
   def setupEnv(
     customMRHome: String = s"${System.getProperty("user.home")}/.ivy2/cache",
     customConnMan: Option[String] = None
-  ) {
+  ): Unit = {
     // very dodgy way of configuring sqoop for testing,
     // but these should only ever have one value each in a single testing run
     // and the configuration becomes an implementation details hidden from our API
     System.setProperty(SqoopEx.mrHomeKey, customMRHome)
     customConnMan.fold(System.clearProperty(SqoopEx.connManKey))(cm => System.setProperty(SqoopEx.connManKey, cm))
+    ()
   }
 }
 

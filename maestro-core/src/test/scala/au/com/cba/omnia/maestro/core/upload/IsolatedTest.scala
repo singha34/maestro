@@ -12,8 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package au.com.cba.omnia.maestro.core
-package upload
+package au.com.cba.omnia.maestro.core.upload
 
 import scala.util.Random
 
@@ -56,11 +55,13 @@ object isolatedTest extends Fixture[IsolatedDirs] {
   // WARNING: deleteAll will follow symlinks!
   // Java 7 supports symlinks, so once we drop Java 6 support we should be
   // able to do this properly, or use a library function that does it properly
-  def deleteAll(file: File) {
+  def deleteAll(file: File): Unit = {
     if (file.isDirectory)
       file.listFiles.foreach(deleteAll)
-    if (file.exists)
+    if (file.exists) {
       file.delete
+      ()
+    }
   }
 
   def apply[R: AsResult](test: IsolatedDirs => R) = {

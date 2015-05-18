@@ -22,7 +22,7 @@ import java.io.File
 
 import org.joda.time.DateTime
 
-import scalaz._, Scalaz._
+import scalaz.{\/, -\/, \/-}
 
 import au.com.cba.omnia.omnitool.{Error, Ok}
 

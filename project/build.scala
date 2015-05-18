@@ -34,22 +34,26 @@ import au.com.cba.omnia.humbug.HumbugSBT._
 object build extends Build {
   type Sett = Def.Setting[_]
 
-  val thermometerVersion = "0.7.1-20150326002216-cbeb5fa"
-  val ebenezerVersion    = "0.17.0-20150422010951-dd38ce5"
-  val omnitoolVersion    = "1.8.1-20150326034344-bbff728"
-  val permafrostVersion  = "0.6.0-20150427054837-708fd11"
-  val edgeVersion        = "3.3.1-20150326052503-b0a7023"
-  val humbugVersion      = "0.5.1-20150326040350-55bca1b"
-  val parlourVersion     = "1.8.1-20150326035955-18bc8d9"
+  val thermometerVersion = "1.0.0-20150513002558-a6bcf7f"
+  val ebenezerVersion    = "0.18.0-20150518023229-cda03fa"
+  val omnitoolVersion    = "1.10.0-20150430044321-3ca9118"
+  val permafrostVersion  = "0.8.1-20150507233550-af2c035"
+  val edgeVersion        = "3.4.0-20150513004502-4b6d30d"
+  val humbugVersion      = "0.6.1-20150513010955-5eb6297"
+  val parlourVersion     = "1.9.0-20150514050504-a530fa1"
 
-  val scalikejdbc = noHadoop("org.scalikejdbc" %% "scalikejdbc" % "2.1.2").exclude("org.joda", "joda-convert")
+  val scalikejdbc = noHadoop("org.scalikejdbc" %% "scalikejdbc" % "2.2.6")
+    .exclude("org.joda", "joda-convert")
+    .exclude("org.scala-lang.modules", "scala-parser-combinators_2.11")
 
   lazy val standardSettings: Seq[Sett] =
     Defaults.coreDefaultSettings ++
     uniformDependencySettings ++
     strictDependencySettings ++
     uniform.docSettings("https://github.com/CommBank/maestro") ++
-    Seq(logLevel in assembly := Level.Error)
+    Seq(
+      logLevel in assembly := Level.Error
+    )
 
   lazy val all = Project(
     id = "all"
@@ -90,7 +94,8 @@ object build extends Build {
       scroogeThriftSourceFolder in Test <<= (sourceDirectory) { _ / "test" / "thrift" / "scrooge" },
       humbugThriftSourceFolder in Test <<= (sourceDirectory) { _ / "test" / "thrift" / "humbug" },
       libraryDependencies ++=
-        depend.scalaz() ++ depend.scalding()
+           depend.scalaz() 
+        ++ depend.scalding()
         ++ depend.hadoopClasspath
         ++ depend.hadoop()
         ++ depend.shapeless() ++ depend.testing() ++ depend.time()
@@ -104,6 +109,8 @@ object build extends Build {
         ++ depend.omnia("parlour",       parlourVersion)
         ++ Seq(
           noHadoop("commons-validator"  % "commons-validator" % "1.4.0"),
+          "org.specs2"                 %% "specs2-matcher-extra" % "3.5" % "test"
+            exclude("org.scala-lang", "scala-compiler"),
           "au.com.cba.omnia"           %% "ebenezer-test"     % ebenezerVersion        % "test",
           "au.com.cba.omnia"           %% "thermometer-hive"  % thermometerVersion     % "test",
           scalikejdbc                                                                  % "test",
@@ -122,10 +129,12 @@ object build extends Build {
     ++ uniform.project("maestro-macros", "au.com.cba.omnia.maestro.macros")
     ++ Seq[Sett](
          libraryDependencies <++= scalaVersion.apply(sv => Seq(
-           "org.scala-lang"   % "scala-compiler" % sv
+          "org.scala-lang"   % "scala-compiler" % sv
+            exclude("org.scala-lang.modules", "scala-parser-combinators_2.11")
+            exclude("org.scala-lang.modules", "scala-xml_2.11")
          , "org.scala-lang"   % "scala-reflect"  % sv
-         , "org.scalamacros" %% "quasiquotes"    % "2.0.0"
-         , "com.twitter"      % "util-eval_2.10" % "6.3.8" % Test
+         , "com.twitter"     %% "util-eval"      % "6.24.0" % "test"
+            exclude("com.twitter", "util-core_2.11")
          ) ++ depend.testing())
        , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
     )
@@ -179,6 +188,8 @@ object build extends Build {
     ++ Seq[Sett](
       libraryDependencies ++= Seq(
         "com.storm-enroute" %% "scalameter" % "0.6"
+          exclude("org.scala-lang.modules", "scala-parser-combinators_2.11")
+          exclude("org.scala-lang.modules", "scala-xml_2.11")
       ) ++ depend.testing()
     , testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")
     , parallelExecution in Test := false
@@ -199,19 +210,11 @@ object build extends Build {
     ++ Seq[Sett](
          scroogeThriftSourceFolder in Compile <<= (sourceDirectory) { _ / "main" / "thrift" / "scrooge" }
        , humbugThriftSourceFolder  in Compile <<= (sourceDirectory) { _ / "main" / "thrift" / "humbug" }
-       , (humbugIsDirty in Compile) <<= (humbugIsDirty in Compile) map { (_) => true }
        , libraryDependencies ++=
            depend.omnia("ebenezer-test",    ebenezerVersion)
            ++ depend.omnia("thermometer-hive", thermometerVersion)
-           ++ depend.hadoopClasspath
-           ++ depend.hadoop()
-           ++ Seq (
-             "org.scalaz"     %% "scalaz-scalacheck-binding" % depend.versions.scalaz
-           , "org.scalacheck" %% "scalacheck"                % depend.versions.scalacheck
-           , "org.specs2"     %% "specs2"                    % depend.versions.specs
-               exclude("org.scalacheck", s"scalacheck_${scalaBinaryVersion.value}")
-               exclude("org.ow2.asm", "asm")
-         )
+           ++ depend.hadoopClasspath ++ depend.hadoop()
+           ++ depend.testing(configuration = "test")
     )
   ).dependsOn(core)
 }
