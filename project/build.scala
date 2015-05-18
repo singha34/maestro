@@ -52,7 +52,11 @@ object build extends Build {
     strictDependencySettings ++
     uniform.docSettings("https://github.com/CommBank/maestro") ++
     Seq(
-      logLevel in assembly := Level.Error
+      logLevel in assembly := Level.Error,
+      // Run tests sequentially across the subprojects.
+      concurrentRestrictions in Global := Seq(
+        Tags.limit(Tags.Test, 1)
+      )
     )
 
   lazy val all = Project(
