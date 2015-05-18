@@ -112,11 +112,11 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
             fds1 <- dirs.foldLeftM((List[Path](), List[Path]()))(f)
             fds2 <- inner(fds1._2)
             fds = (fds1._1 ++ fds2._1, fds2._2)
-          } yield (fds)
+          } yield fds
         }
       }
 
-      inner(List(dir)).map{case x => x._1}
+      inner(List(dir)).map{_._1}
     }
 
     if (append) {
