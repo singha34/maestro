@@ -53,6 +53,7 @@ object build extends Build {
     uniform.docSettings("https://github.com/CommBank/maestro") ++
     Seq(
       logLevel in assembly := Level.Error,
+      updateOptions := updateOptions.value.withCachedResolution(true),
       // Run tests sequentially across the subprojects.
       concurrentRestrictions in Global := Seq(
         Tags.limit(Tags.Test, 1)
