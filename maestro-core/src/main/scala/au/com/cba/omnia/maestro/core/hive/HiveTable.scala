@@ -90,30 +90,27 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
 
     def find(dir: Path, globPattern: String = "*") = {
       def filesDirs(dir: Path) = for {
-        files <- Hdfs.files(dir, globPattern)
+        files    <- Hdfs.files(dir, globPattern)
         allFiles <- Hdfs.files(dir)
-        dirs <- allFiles.filterM(Hdfs.isDirectory)
-      } yield (files, dirs)
-
-      def pairConcat(x: (List[A], List[A]), y: (List[A], List[A])) =
-          (x._1 ++ y._1, x._2 ++ y._2)
-
-      def f(b: (List[Path], List[Path]), dir: Path) = for {
-        fds <- filesDirs(dir)
-        files = b._1 ++ fds._1
-        dirs = b._2 ++ fds._2
+        dirs     <- allFiles.filterM(Hdfs.isDirectory)
       } yield (files, dirs)
 
       def inner(dirs: List[Path]): Hdfs[(List[Path], List[Path])] = {
-        val nope = (List[Path](), List[Path]())
+        val noFiles = (List[Path](), List[Path]())
+
+        def f(b: (List[Path], List[Path]), dir: Path) = for {
+          fds <- filesDirs(dir)
+          files = b._1 ++ fds._1
+          dirs  = b._2 ++ fds._2
+        } yield (files, dirs)
+
         if (dirs.isEmpty) {
-          Hdfs.value(nope)
+          Hdfs.value(noFiles)
         } else {
           for {
-            fds1 <- dirs.foldLeftM((List[Path](), List[Path]()))(f)
+            fds1 <- dirs.foldLeftM(noFiles)(f)
             fds2 <- inner(fds1._2)
-            fds = (fds1._1 ++ fds2._1, fds2._2)
-          } yield fds
+          } yield (fds1._1 ++ fds2._1, fds2._2)
         }
       }
 
