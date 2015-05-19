@@ -15,6 +15,7 @@
 package au.com.cba.omnia.maestro.core.task
 
 import scala.util.Random
+import scala.reflect.{ClassTag, classTag}
 
 import java.io.File
 
@@ -292,13 +293,13 @@ object SqoopEx {
     } yield (importPath, count)
   }
 
-  def archive[C <: CompressionCodec : ClassManifest](
+  def archive[C <: CompressionCodec : ClassTag](
     src: String, dest: String
   ): Execution[Long] = {
     def modifyConfig(config: Config) = Config(config.toMap ++ Map(
       "mapred.output.compress"          -> "true",
       "mapred.output.compression.type"  -> "BLOCK",
-      "mapred.output.compression.codec" -> implicitly[ClassManifest[C]].erasure.getName
+      "mapred.output.compression.codec" -> classTag[C].runtimeClass.getName
     ))
 
     val execution = TypedPipe.from(TextLine(src))

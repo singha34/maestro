@@ -19,6 +19,7 @@ import java.security.{MessageDigest, SecureRandom}
 import java.util.UUID
 
 import scala.reflect.runtime.currentMirror
+import scala.reflect.{ClassTag, classTag}
 import scala.util.control.NonFatal
 import scala.util.hashing.MurmurHash3
 
@@ -175,7 +176,7 @@ trait LoadExecution {
     *  1. The fraction of successfull rows is compared against the error threshold
     *     and the appropriate `LoadInfo` value returned.
     */
-  def load[A <: ThriftStruct : Decode : Tag : Manifest](
+  def load[A <: ThriftStruct : Decode : Tag : ClassTag](
     config: LoadConfig[A], sources: List[String]
   ): Execution[(TypedPipe[A], LoadInfo)] = {
     LoadEx.execution[A](config, sources)
@@ -187,7 +188,7 @@ trait LoadExecution {
   * We may change this without considering backwards compatibility.
   */
 object LoadEx {
-  def execution[A <: ThriftStruct : Decode : Tag : Manifest](
+  def execution[A <: ThriftStruct : Decode : Tag : ClassTag](
     config: LoadConfig[A], sources: List[String]
   ): Execution[(TypedPipe[A], LoadInfo)] = {
     val rawRows =
@@ -217,7 +218,7 @@ object LoadEx {
     * Parse the rows in the provided ThriftStruct.
     * If any rows are filtered out the counter is increased.
     */
-  def parseRows[A <: ThriftStruct : Decode : Tag : Manifest](
+  def parseRows[A <: ThriftStruct : Decode : Tag : ClassTag](
     conf: LoadConfig[A], filterCounter: Stat, in: TypedPipe[RawRow]
   ): TypedPipe[String \/ A] = {
     val pipe = TypedPipeFactory { (flowDef, mode) =>
@@ -243,7 +244,7 @@ object LoadEx {
   }
 
   /** Decode and validate a single row. */
-  def decodeRow[A <: ThriftStruct : Decode : Tag : Manifest](conf: LoadConfig[A])(row: List[String])
+  def decodeRow[A <: ThriftStruct : Decode : Tag : ClassTag](conf: LoadConfig[A])(row: List[String])
       : String \/ A =
     Tag.tag[A](row)
       .map(_.map { case (column, field) => conf.clean.run(field, column) })
@@ -292,10 +293,10 @@ object LoadEx {
    * extra constraints on A, breaking backwards compatibility slightly. We should
    * do this sometime in the future.
    */
-  def getCodec[A <: ThriftStruct : Manifest]: ThriftStructCodec[A] = {
-    val klazz = manifest[A].runtimeClass
+  def getCodec[A <: ThriftStruct : ClassTag]: ThriftStructCodec[A] = {
+    val klazz = classTag[A].runtimeClass
     try {
-      val companionSyb = currentMirror.classSymbol(klazz).companionSymbol
+      val companionSyb = currentMirror.classSymbol(klazz).companion
       val companion    = currentMirror.reflectModule(companionSyb.asModule).instance
       companion.asInstanceOf[ThriftStructCodec[A]]
     } catch {

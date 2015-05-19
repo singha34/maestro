@@ -15,7 +15,7 @@
 package au.com.cba.omnia.maestro.core.codec
 
 import scala.util.control.NonFatal
-import scala.reflect.runtime.universe.{typeOf, WeakTypeTag}
+import scala.reflect.runtime.universe.{typeOf, TypeTag, WeakTypeTag}
 
 import scalaz._, Scalaz._, \&/._
 
@@ -94,11 +94,10 @@ object Decode extends ProductTypeClassCompanion[Decode] {
     one("String", _.right)
 
   /** Decoder into Option[A]. '''NB: For strings "" is decoded as Some("")'''. */
-  implicit def OptionDecode[A](implicit decode: Decode[A], manifest: Manifest[A]):Decode[Option[A]] =
+  implicit def OptionDecode[A : TypeTag](implicit decode: Decode[A]):Decode[Option[A]] =
     Decode((none, source, n) => source match {
       case s :: remainder =>
-        // Use Manifest instead of WeakTypeTag since in 2.10 WeakTypeTag is not thread safe.
-        if ((s.isEmpty && !(manifest <:< implicitly[Manifest[String]])) || s == none)
+        if ((s.isEmpty && !(typeOf[A] <:< typeOf[String])) || s == none)
           DecodeOk((remainder, n + 1 , None))
         else
           decode.map(Option(_)).run(none, source, n)
