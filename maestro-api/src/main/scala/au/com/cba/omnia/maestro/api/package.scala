@@ -54,10 +54,10 @@ package object api {
   type Splitter        = au.com.cba.omnia.maestro.core.split.Splitter
   val  Splitter        = au.com.cba.omnia.maestro.core.split.Splitter
 
-  type Decode[A]       = au.com.cba.omnia.maestro.core.codec.Decode[A]
-  type Transform[A, B] = au.com.cba.omnia.maestro.core.transform.Transform[A, B]
-  type Tag[A]          = au.com.cba.omnia.maestro.core.codec.Tag[A]
-  type Field[A, B]     = au.com.cba.omnia.maestro.core.data.Field[A, B]
+  type Decode[A]       = au.com.cba.omnia.maestro.innercore.codec.Decode[A]
+  type Transform[A, B] = au.com.cba.omnia.maestro.innercore.transform.Transform[A, B]
+  type Tag[A]          = au.com.cba.omnia.maestro.innercore.codec.Tag[A]
+  type Field[A, B]     = au.com.cba.omnia.maestro.innercore.data.Field[A, B]
   val  Macros          = au.com.cba.omnia.maestro.macros.Macros
 
   val  MaestroHdfs     = au.com.cba.omnia.maestro.core.hdfs.MaestroHdfs

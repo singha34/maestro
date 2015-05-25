@@ -15,7 +15,7 @@
 package au.com.cba.omnia.maestro.core
 package clean
 
-import au.com.cba.omnia.maestro.core.data._
+import au.com.cba.omnia.maestro.innercore.data.Field
 
 case class Clean(run: (Field[_, _], String) => String) {
   /** Returns a new Clean instance that applied the current clean action ONLY if the condition evaluated to true. */

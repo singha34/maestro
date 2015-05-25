@@ -24,11 +24,11 @@ import com.twitter.scrooge.ThriftStruct
 
 import au.com.cba.omnia.humbug.HumbugThriftStruct
 
-import au.com.cba.omnia.maestro.core.transform.Transform
+import au.com.cba.omnia.maestro.innercore.transform.Transform
 
 /**
   * Macro to automatically derive Transformations from one thrift struct to another.
-  * 
+  *
   * It can take a variable number of rules that determine how to calculate the value for the
   * specified target field. Target fields that don't have specified rules are copied from a source
   * field with the same name. If there are no source fields with the same name, and no explicit
@@ -58,7 +58,7 @@ object TransformMacro {
 
     /**
       * Parse the manual transformation rules.
-      * 
+      *
       * Rules are of the form ('fieldName, A => $fieldType).
       */
     def parseTransform(transform: c.Expr[(Symbol, A => _)]): Result[(String, c.Tree)] = {
@@ -148,7 +148,7 @@ object TransformMacro {
     }
 
     val result = q"""
-      import au.com.cba.omnia.maestro.core.transform.Transform
+      import au.com.cba.omnia.maestro.innercore.transform.Transform
       Transform[$srcType, $dstType](($in: $srcType) => $body)
     """
 

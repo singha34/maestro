@@ -16,7 +16,7 @@ package au.com.cba.omnia.maestro.macros
 
 import scalaz._, Scalaz._
 
-import au.com.cba.omnia.maestro.core.codec.Encode
+import au.com.cba.omnia.maestro.innercore.codec.Encode
 
 import au.com.cba.omnia.maestro.test.Spec
 import au.com.cba.omnia.maestro.test.Arbitraries._

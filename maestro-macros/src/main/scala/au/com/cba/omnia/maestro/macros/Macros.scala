@@ -16,8 +16,8 @@ package au.com.cba.omnia.maestro.macros
 
 import com.twitter.scrooge._
 
-import au.com.cba.omnia.maestro.core.codec._
-import au.com.cba.omnia.maestro.core.transform.{Transform, Join}
+import au.com.cba.omnia.maestro.innercore.codec._
+import au.com.cba.omnia.maestro.innercore.transform.{Transform, Join}
 
 object Macros {
   def mkDecode[A <: ThriftStruct]: Decode[A] =

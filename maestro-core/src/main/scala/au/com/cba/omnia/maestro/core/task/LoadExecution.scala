@@ -42,7 +42,7 @@ import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
 
 import au.com.cba.omnia.omnitool.Result
 
-import au.com.cba.omnia.maestro.core.codec._
+import au.com.cba.omnia.maestro.innercore.codec._
 import au.com.cba.omnia.maestro.core.clean.Clean
 import au.com.cba.omnia.maestro.core.filter.RowFilter
 import au.com.cba.omnia.maestro.core.scalding.{StatKeys, Paths, Errors, CombinedSequenceFile}

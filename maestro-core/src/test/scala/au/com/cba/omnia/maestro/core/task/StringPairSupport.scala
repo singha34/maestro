@@ -14,10 +14,10 @@
 
 package au.com.cba.omnia.maestro.core.task
 
-import au.com.cba.omnia.maestro.core.data.Field
-import au.com.cba.omnia.maestro.core.codec.{Decode, Tag}
+import au.com.cba.omnia.maestro.innercore.data.Field
+import au.com.cba.omnia.maestro.innercore.codec.{Decode, Tag}
 
-import au.com.cba.omnia.maestro.core.thrift.scrooge.StringPair
+import au.com.cba.omnia.maestro.innercore.thrift.scrooge.StringPair
 
 object StringPairFields {
   val fields: List[Field[StringPair, _]] = List(

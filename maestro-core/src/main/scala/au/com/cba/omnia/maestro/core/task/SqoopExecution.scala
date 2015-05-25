@@ -41,8 +41,8 @@ import au.com.cba.omnia.parlour.{SqoopExecution => ParlourExecution, ParlourExpo
 
 import au.com.cba.omnia.permafrost.hdfs.Hdfs
 
+import au.com.cba.omnia.maestro.innercore.codec.Encode
 import au.com.cba.omnia.maestro.core.scalding.StatKeys
-import au.com.cba.omnia.maestro.core.codec.Encode
 import au.com.cba.omnia.maestro.core.split.Splitter
 import au.com.cba.omnia.maestro.core.scalding.ExecutionOps._
 
@@ -206,7 +206,7 @@ trait SqoopExecution {
     config: SqoopExportConfig[T], exportDir: String
   ): Execution[Unit] =
     SqoopEx.exportExecution(config.copy(options = config.options.exportDir(exportDir)))
-  
+
   /** Exports data from a TypedPipe to a DB via Sqoop.
     *
     * The provided TypedPipe is flushed to a temporary location on-disk before writing.

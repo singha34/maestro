@@ -18,14 +18,14 @@ import scala.reflect.macros.Context
 
 import com.twitter.scrooge.ThriftStruct
 
-import au.com.cba.omnia.maestro.core.codec.Tag
+import au.com.cba.omnia.maestro.innercore.codec.Tag
 
 object TagMacro {
   def impl[A <: ThriftStruct: c.WeakTypeTag](c: Context): c.Expr[Tag[A]] = {
     import c.universe._
     val fields = FieldsMacro.impl[A](c)
     val result = q"""
-      import au.com.cba.omnia.maestro.core.codec.Tag
+      import au.com.cba.omnia.maestro.innercore.codec.Tag
       Tag.fromFields(${fields}.AllFields)
     """
     c.Expr[Tag[A]](result)

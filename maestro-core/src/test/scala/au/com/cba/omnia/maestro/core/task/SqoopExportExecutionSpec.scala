@@ -28,9 +28,9 @@ import au.com.cba.omnia.parlour.SqoopSyntax.{ParlourExportDsl, TeradataParlourEx
 import au.com.cba.omnia.thermometer.core.Thermometer._
 import au.com.cba.omnia.thermometer.core.ThermometerSpec
 
+import au.com.cba.omnia.maestro.innercore.codec.Encode
 import au.com.cba.omnia.maestro.core.split.Splitter
-import au.com.cba.omnia.maestro.core.codec.Encode
-import au.com.cba.omnia.maestro.core.thrift.humbug.Exhaustive
+import au.com.cba.omnia.maestro.innercore.thrift.humbug.Exhaustive
 
 object SqoopExportExecutionSpec
   extends ThermometerSpec
@@ -177,7 +177,7 @@ object SqoopExportExecutionSpec
     SQL(s"select * from $table").map(rs => List(rs.int("id"), rs.string("name"), rs.string("accr"),
       rs.string("cat"), rs.string("sub_cat"), rs.int("balance")) mkString "|").list.apply()
   }
-  
+
   def testObjTableSetup(
     connectionString: String,
     username: String,
@@ -211,17 +211,17 @@ object SqoopExportExecutionSpec
     SQL(s"select * from $table").map(rs => List(rs.string("stringField"), rs.boolean("booleanField"), rs.int("intField"),
       rs.long("longField"), rs.double("doubleField"), rs.intOpt("optIntField").getOrElse(""), rs.stringOpt("optStringField").getOrElse("")) mkString "|").list.apply()
   }
-  
+
   def testObjects = {
     def create (
       str:    String,
       bool:   Boolean,
-      int:    Int, 
-      long:   Long, 
-      double: Double, 
+      int:    Int,
+      long:   Long,
+      double: Double,
       optInt: Option[Int],
       optStr: Option[String]
-    ): Exhaustive = { 
+    ): Exhaustive = {
       val x = new Exhaustive
       x.myString    = str
       x.myBoolean   = bool
@@ -239,9 +239,9 @@ object SqoopExportExecutionSpec
   }
 
   implicit def encoder: Encode[Exhaustive] = {
-    Encode((none, a) => 
+    Encode((none, a) =>
       List(
-        Encode.encode[String](none, a._1), 
+        Encode.encode[String](none, a._1),
         Encode.encode[Boolean](none, a._2),
         Encode.encode[Int](none, a._3),
         Encode.encode[Long](none, a._4),

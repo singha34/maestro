@@ -22,11 +22,11 @@ import au.com.cba.omnia.thermometer.hive.HiveSupport
 import au.com.cba.omnia.ebenezer.ParquetLogging
 import au.com.cba.omnia.ebenezer.test.ParquetThermometerRecordReader
 
-import au.com.cba.omnia.maestro.core.data.Field
+import au.com.cba.omnia.maestro.innercore.data.Field
 import au.com.cba.omnia.maestro.core.hive.{HiveTable, UnpartitionedHiveTable}
 import au.com.cba.omnia.maestro.core.partition.Partition
 
-import au.com.cba.omnia.maestro.core.thrift.scrooge.StringPair
+import au.com.cba.omnia.maestro.innercore.thrift.scrooge.StringPair
 
 private object ViewExec extends ViewExecution
 

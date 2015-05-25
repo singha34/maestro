@@ -14,7 +14,7 @@
 
 package au.com.cba.omnia.maestro.benchmark.thrift
 
-import au.com.cba.omnia.maestro.core.codec.{Encode, Decode, Tag}
+import au.com.cba.omnia.maestro.innercore.codec.{Encode, Decode, Tag}
 import au.com.cba.omnia.maestro.macros.Macros
 
 /** Contains implicits for thrift types */

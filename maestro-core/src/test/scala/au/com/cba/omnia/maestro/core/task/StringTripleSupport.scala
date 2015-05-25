@@ -14,10 +14,10 @@
 
 package au.com.cba.omnia.maestro.core.task
 
-import au.com.cba.omnia.maestro.core.data.Field
-import au.com.cba.omnia.maestro.core.codec.{Decode, Tag}
+import au.com.cba.omnia.maestro.innercore.data.Field
+import au.com.cba.omnia.maestro.innercore.codec.{Decode, Tag}
 
-import au.com.cba.omnia.maestro.core.thrift.scrooge.StringTriple
+import au.com.cba.omnia.maestro.innercore.thrift.scrooge.StringTriple
 
 // Moved fields into a separate object to avoid serialisation issues.
 object StringTripleFields {

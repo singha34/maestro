@@ -18,11 +18,11 @@ import scala.reflect.macros.Context
 
 import com.twitter.scrooge.ThriftStruct
 
-import au.com.cba.omnia.maestro.core.codec.Encode
+import au.com.cba.omnia.maestro.innercore.codec.Encode
 
 /**
   * Converts a thrift struct into a list of its fields.
-  * 
+  *
   * Each field is encoded as the [[Val]] corresponding to its type.
   */
 object EncodeMacro {

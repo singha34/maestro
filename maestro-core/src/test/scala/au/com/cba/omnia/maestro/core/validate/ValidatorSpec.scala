@@ -21,8 +21,8 @@ import org.scalacheck.Arbitrary
 
 import au.com.cba.omnia.omnitool.{Result, Ok}
 
-import au.com.cba.omnia.maestro.core.data.Field
-import au.com.cba.omnia.maestro.core.test.Spec
+import au.com.cba.omnia.maestro.innercore.data.Field
+import au.com.cba.omnia.maestro.innercore.test.Spec
 
 object ValidatorSpec extends Spec { def is = s2"""
 

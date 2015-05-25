@@ -39,7 +39,7 @@ import au.com.cba.omnia.maestro.core.split.Splitter
 import au.com.cba.omnia.maestro.core.time.TimeSource
 import au.com.cba.omnia.maestro.core.validate.Validator
 
-import au.com.cba.omnia.maestro.core.thrift.scrooge.StringPair
+import au.com.cba.omnia.maestro.innercore.thrift.scrooge.StringPair
 
 object LoadViewExecutionSpec extends ThermometerSpec
     with StringPairSupport

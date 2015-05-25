@@ -28,7 +28,7 @@ import au.com.cba.omnia.maestro.core.time.TimeSource
 import au.com.cba.omnia.maestro.core.validate.Validator
 import au.com.cba.omnia.maestro.core.scalding.StatKeys
 
-import au.com.cba.omnia.maestro.core.thrift.scrooge.{StringPair, StringTriple}
+import au.com.cba.omnia.maestro.innercore.thrift.scrooge.{StringPair, StringTriple}
 
 private object LoadExec extends LoadExecution
 

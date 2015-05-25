@@ -16,7 +16,7 @@ package au.com.cba.omnia.maestro.core.filter
 
 import org.scalacheck._, Arbitrary._
 
-import au.com.cba.omnia.maestro.core.test.Spec
+import au.com.cba.omnia.maestro.innercore.test.Spec
 
 object RowFilterSpec extends Spec { def is = s2"""
 

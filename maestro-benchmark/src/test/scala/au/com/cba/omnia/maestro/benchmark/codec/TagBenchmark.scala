@@ -16,7 +16,7 @@ package au.com.cba.omnia.maestro.benchmark.codec
 
 import org.scalameter.api.{PerformanceTest, Gen}
 
-import au.com.cba.omnia.maestro.core.codec.Tag
+import au.com.cba.omnia.maestro.innercore.codec.Tag
 import au.com.cba.omnia.maestro.macros.Macros
 
 import au.com.cba.omnia.maestro.benchmark.thrift.{Struct10, Struct20, Struct30, Generators}

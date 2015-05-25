@@ -29,7 +29,7 @@ import com.twitter.scalding.typed.TypedPipe
 
 import au.com.cba.omnia.parlour.{ParlourExportOptions, ParlourImportOptions}
 
-import au.com.cba.omnia.maestro.core.codec.{Decode, Tag}
+import au.com.cba.omnia.maestro.innercore.codec.{Decode, Tag}
 import au.com.cba.omnia.maestro.core.clean.Clean
 import au.com.cba.omnia.maestro.core.filter.RowFilter
 import au.com.cba.omnia.maestro.core.hive.HiveTable

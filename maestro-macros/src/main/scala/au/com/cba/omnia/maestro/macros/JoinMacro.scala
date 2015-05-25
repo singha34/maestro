@@ -22,7 +22,7 @@ import com.twitter.scrooge.ThriftStruct
 
 import au.com.cba.omnia.humbug.HumbugThriftStruct
 
-import au.com.cba.omnia.maestro.core.transform.Join
+import au.com.cba.omnia.maestro.innercore.transform.Join
 
 /**
   * Macro to automatically derive transformations from a tuple of thrift structs
@@ -197,7 +197,7 @@ object JoinMacro {
                       else                                               scroogeTree(inpTerm, output.typ, mappings)
 
       q"""
-      au.com.cba.omnia.maestro.core.transform.Join[$inputType, ${output.typ}](
+      au.com.cba.omnia.maestro.innercore.transform.Join[$inputType, ${output.typ}](
         ($inpTerm: $inputType) => {
           $struct
         }

@@ -17,7 +17,7 @@ package partition
 
 import org.joda.time.format.DateTimeFormat
 
-import au.com.cba.omnia.maestro.core.data._
+import au.com.cba.omnia.maestro.innercore.data.Field
 
 /**
   * Partitioning schema to create partition `B`, usually a string or tuple of strings

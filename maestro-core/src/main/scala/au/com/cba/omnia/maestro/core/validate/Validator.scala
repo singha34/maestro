@@ -27,7 +27,7 @@ import org.joda.time.format.{DateTimeFormatter, DateTimeFormat}
 
 import au.com.cba.omnia.omnitool.{Result, Error}
 
-import au.com.cba.omnia.maestro.core.data._
+import au.com.cba.omnia.maestro.innercore.data.Field
 
 /**
   * Validator to check that the record conforms to expectations.

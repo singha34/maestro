@@ -14,8 +14,8 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import au.com.cba.omnia.maestro.core.codec._
-import au.com.cba.omnia.maestro.core.data._
+import au.com.cba.omnia.maestro.innercore.codec._
+import au.com.cba.omnia.maestro.innercore.data._
 import com.twitter.scrooge._
 
 import scala.reflect.macros.Context
@@ -36,16 +36,16 @@ object FieldsMacro {
     val companion  = typ.typeSymbol.companionSymbol
     val nameGetter = newTermName("name")
     val idGetter   = newTermName("id")
-    
+
     val fields = entries.map({
       case (method, field) =>
         val term    = q"""$companion.${newTermName(field + "Field")}"""
         val srcName = q"""$term.$nameGetter"""
         val srcId   = q"""$term.$idGetter"""
 
-        val get     = q"""au.com.cba.omnia.maestro.core.data.Accessor[${method.returnType}]($srcId)"""
-        val fld     = q"""au.com.cba.omnia.maestro.core.data.Field[$typ, ${method.returnType}]($srcName,$get)"""
-        
+        val get     = q"""au.com.cba.omnia.maestro.innercore.data.Accessor[${method.returnType}]($srcId)"""
+        val fld     = q"""au.com.cba.omnia.maestro.innercore.data.Field[$typ, ${method.returnType}]($srcName,$get)"""
+
         q"""val ${newTermName(field)} = $fld"""
     })
     val refs = entries.map({

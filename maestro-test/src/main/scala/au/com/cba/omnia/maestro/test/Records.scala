@@ -23,7 +23,7 @@ import com.google.common.base.Splitter
 import au.com.cba.omnia.thermometer.context.Context
 import au.com.cba.omnia.thermometer.core.ThermometerRecordReader
 
-import au.com.cba.omnia.maestro.core.codec._
+import au.com.cba.omnia.maestro.innercore.codec.{Decode, DecodeOk, DecodeError}
 
 trait Records {
   /**

@@ -78,6 +78,28 @@ object build extends Build {
   ).dependsOn(core)
    .dependsOn(macros)
 
+  lazy val innercore = Project(
+    id = "innercore"
+  , base = file("maestro-innercore")
+  , settings =
+       standardSettings
+    ++ uniformThriftSettings
+    ++ uniform.project("maestro-innercore", "au.com.cba.omnia.maestro.innercore")
+    ++ humbugSettings
+    ++ Seq[Sett](
+      scroogeThriftSourceFolder in Test <<= (sourceDirectory) { _ / "test" / "thrift" / "scrooge" },
+      humbugThriftSourceFolder in Test <<= (sourceDirectory) { _ / "test" / "thrift" / "humbug" },
+      libraryDependencies ++=
+           depend.scalaz()
+        ++ depend.hadoopClasspath
+        ++ depend.shapeless()
+        ++ depend.testing()
+        ++ depend.omnia("humbug-core",   humbugVersion)
+        ++ depend.omnia("omnitool-core", omnitoolVersion),
+      parallelExecution in Test := false
+    )
+  )
+
   lazy val core = Project(
     id = "core"
   , base = file("maestro-core")
@@ -110,9 +132,10 @@ object build extends Build {
           "com.opencsv"                 % "opencsv"           % "3.3"
             exclude ("org.apache.commons", "commons-lang3") // conflicts with hive
         ),
-      parallelExecution in Test := false
+      parallelExecution in Test := false,
+      dependencyOverrides += "org.scalacheck" %% "scalacheck" % depend.versions.scalacheck % "test"
     )
-  )
+  ).dependsOn(innercore % "test->test;compile->compile")
 
   lazy val macros = Project(
     id = "macros"
@@ -125,11 +148,12 @@ object build extends Build {
            "org.scala-lang"   % "scala-compiler" % sv
          , "org.scala-lang"   % "scala-reflect"  % sv
          , "org.scalamacros" %% "quasiquotes"    % "2.0.0"
+         , "commons-lang"     % "commons-lang"   % "2.6"
          , "com.twitter"      % "util-eval_2.10" % "6.3.8" % Test
          ) ++ depend.testing())
        , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
     )
-  ).dependsOn(core)
+  ).dependsOn(innercore)
    .dependsOn(test % "test")
 
   lazy val schema = Project(
@@ -161,7 +185,7 @@ object build extends Build {
            scalikejdbc % "test"
          )
        , parallelExecution in Test := false
-       , sources in doc in Compile := List() 
+       , sources in doc in Compile := List()
        , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
     )
   ).dependsOn(core)

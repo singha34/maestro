@@ -18,7 +18,7 @@ import scala.reflect.macros.Context
 
 import com.twitter.scrooge._
 
-import au.com.cba.omnia.maestro.core.codec._
+import au.com.cba.omnia.maestro.innercore.codec._
 
 import au.com.cba.omnia.humbug.HumbugThriftStruct
 
@@ -26,7 +26,7 @@ object Inspect {
   val ProductField = """_(\d+)""".r
 
   /** Gets all the `_1` style getters and their number for a thrift struct in numerical order.*/
-  def indexed[A <: ThriftStruct: c.WeakTypeTag](c: Context): List[(c.universe.MethodSymbol, Int)] = 
+  def indexed[A <: ThriftStruct: c.WeakTypeTag](c: Context): List[(c.universe.MethodSymbol, Int)] =
     indexedUnsafe(c)(c.universe.weakTypeOf[A])
 
   /** Same as indexed but for any type where the type is assumed to be ThriftStruct.*/
