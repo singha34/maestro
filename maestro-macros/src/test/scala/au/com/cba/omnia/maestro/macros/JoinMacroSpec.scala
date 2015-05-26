@@ -4,8 +4,6 @@ import au.com.cba.omnia.maestro.test.Spec
 import au.com.cba.omnia.maestro.test.thrift.humbug._
 import au.com.cba.omnia.maestro.test.thrift.scrooge._
 
-import com.twitter.util.Eval
-
 object JoinMacroSpec extends Spec { def is = s2"""
 JoinMacroSpec
 ==================
@@ -120,33 +118,21 @@ JoinMacroSpec
   }
 
   def incompatibleTypes = {
-    lazy val compileMacro = {
-      new Eval()(imports + """Macros.mkJoin[(JoinOneScrooge, JoinTwoScrooge, JoinOneIncompatibleScrooge), JoinableScrooge]""")
-    }.toString
+    val compileErrors = MacroUtils.compileErrors("Macros.mkJoin[(JoinOneScrooge, JoinTwoScrooge, JoinOneIncompatibleScrooge), JoinableScrooge]")
 
-    compileMacro must throwA[com.twitter.util.Eval$CompilerException].like {
-      case e => e.getMessage must contain("someField is not compatible with")
-    }
+    compileErrors must beSome("Join requires output fields to have matching compatible input fields: someField is not compatible with JoinOneIncompatibleScrooge.someField: => String")
   }
 
   def joinWithMissingField = {
-    lazy val compileMacro = {
-      new Eval()(imports + """Macros.mkJoin[(JoinOneScrooge, JoinTwoScrooge), UnjoinableScrooge]""")
-    }.toString
+    val compileErrors = MacroUtils.compileErrors("Macros.mkJoin[(JoinOneScrooge, JoinTwoScrooge), UnjoinableScrooge]")
 
-    compileMacro must throwA[com.twitter.util.Eval$CompilerException].like {
-      case e => e.getMessage must contain("Join requires output fields to have matching compatible input field")
-    }
+    compileErrors must beSome("Join requires output fields to have matching compatible input fields: missingField has no input field")
   }
 
   def notThriftError = {
-    lazy val compileMacro = {
-      new Eval()(imports + """Macros.mkJoin[(Int, Int, JoinOneHumbug), SubTwo]""")
-    }.toString
+    val compileErrors = MacroUtils.compileErrors("Macros.mkJoin[(Int, Int, JoinOneHumbug), SubTwo]")
 
-    compileMacro must throwA[com.twitter.util.Eval$CompilerException].like {
-      case e => e.getMessage must contain("Join requires a product of thrift structs")
-    }
+    compileErrors must beSome("Join requires a product of thrift structs: Int is not a thrift struct, Int is not a thrift struct")
   }
 
   def mixedToHumbug = {

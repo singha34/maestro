@@ -133,8 +133,6 @@ object build extends Build {
             exclude("org.scala-lang.modules", "scala-parser-combinators_2.11")
             exclude("org.scala-lang.modules", "scala-xml_2.11")
          , "org.scala-lang"   % "scala-reflect"  % sv
-         , "com.twitter"     %% "util-eval"      % "6.24.0" % "test"
-            exclude("com.twitter", "util-core_2.11")
          ) ++ depend.testing())
        , addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
     )
