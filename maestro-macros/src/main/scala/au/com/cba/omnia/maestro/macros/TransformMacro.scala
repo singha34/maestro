@@ -14,7 +14,8 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import scala.reflect.macros.{Context, TypecheckException}
+import scala.reflect.macros.TypecheckException
+import scala.reflect.macros.whitebox.Context
 
 import scalaz._, Scalaz._
 
@@ -49,8 +50,8 @@ object TransformMacro {
     val dstFields     = Inspect.fields[B](c).map { case (f, n)  => (f, WordUtils.uncapitalize(n)) }
     val expectedTypes = dstFields.map { case (f, n) => (n, f.returnType) }.toMap
 
-    val in  = newTermName(c.fresh)
-    val out = newTermName(c.fresh)
+    val in  = TermName(c.freshName)
+    val out = TermName(c.freshName)
 
     /** Fail compilation with nice error message. */
     def abort(msg: String) =
@@ -65,13 +66,13 @@ object TransformMacro {
       transform.tree match {
         case q"((scala.Symbol.apply(${Literal(cons: Constant)}), $f))" => {
           val name  = cons.value.toString
-          val field = newTermName(name)
+          val field = TermName(name)
 
           expectedTypes.get(name) match {
             case None  => s"$name is not a member of $dstType.".left
             case Some(tpe) => {
               try {
-                c.typeCheck(q"$f: ($srcType => $tpe)")
+                c.typecheck(q"$f: ($srcType => $tpe)")
                   (name, q"$f.apply($in)").right
               } catch {
                 case TypecheckException(posn, msg) => s"Invalid type for transforming '$name: $msg.".left
@@ -87,7 +88,7 @@ object TransformMacro {
     def copyTransform(method: MethodSymbol, name: String): Result[(String, c.Tree)] = {
       srcFieldsInfo.get(name) match {
         case Some(src) if src.returnType == method.returnType =>
-          (name, q"$in.${newTermName(name)}").right
+          (name, q"$in.${TermName(name)}").right
         case Some(src) =>
           s"$name has type ${src.returnType} in $srcType but $dstType expects ${method.returnType}.".left
         case None      =>
@@ -98,7 +99,7 @@ object TransformMacro {
     /** Create the transform for Humbug thrift structs.*/
     def humbugTransform(transforms: List[(String, c.Tree)]) = {
       val mapped = transforms.map { case (n, f) =>
-        val t = newTermName(n)
+        val t = TermName(n)
         q"$out.$t = $f"
       }
 
@@ -112,10 +113,10 @@ object TransformMacro {
 
     /** Create the transform for Scrooge thrift structs.*/
     def scroogeTransform(transforms: List[(String, c.Tree)]) = {
-      val companion = dstType.typeSymbol.companionSymbol
+      val companion = dstType.typeSymbol.companion
       val order = dstFields.map(_._2).zipWithIndex.toMap
       val mapped = transforms.map { case (n, f) => (order(n), f)}.sortBy(_._1).map(_._2)
-      Apply(Select(Ident(companion), newTermName("apply")), mapped)
+      Apply(Select(Ident(companion), TermName("apply")), mapped)
     }
 
     val (invalidManuals, manuals) =

@@ -14,7 +14,7 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import scala.reflect.macros.Context
+import scala.reflect.macros.whitebox.Context
 
 import com.twitter.scrooge._
 

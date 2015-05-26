@@ -14,7 +14,7 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import scala.reflect.macros.Context
+import scala.reflect.macros.whitebox.Context
 
 import com.twitter.scrooge.ThriftStruct
 
@@ -86,10 +86,10 @@ object HumbugDecodeMacro {
 
     val typ       = weakTypeOf[A]
     val typeName  = typ.toString
-    val companion = typ.typeSymbol.companionSymbol
+    val companion = typ.typeSymbol.companion
     val members   = Inspect.indexed[A](c)
     val size      = members.length
-    val termName  = newTermName(typeName)
+    val termName  = TermName(typeName)
 
     def decodeUnknownSource(xs: List[(MethodSymbol, Int)]) = q"""
       if (source.length < $size) {
@@ -113,7 +113,7 @@ object HumbugDecodeMacro {
     """
     def decodeUnknowns(xs: List[(MethodSymbol, Int)]): List[Tree] = xs.map { case (x, i) =>
       val index  = i - 1
-      val setter = newTermName("_" + i)
+      val setter = TermName("_" + i)
 
       MacroUtils.optional(c)(x.returnType).map { param =>
         if (param == stringType)
@@ -123,7 +123,7 @@ object HumbugDecodeMacro {
               else                        Option(fields($index))
           """
         else {
-          val method = newTermName("to" + param)
+          val method = TermName("to" + param)
           val tag    = s"Option[$param]"
           q"""{
             tag   = $tag
@@ -140,7 +140,7 @@ object HumbugDecodeMacro {
         if (x.returnType == stringType)
           q"struct.$setter = fields($index)"
         else {
-          val method = newTermName("to" + x.returnType)
+          val method = TermName("to" + x.returnType)
           val tag    = x.returnType.toString
 
           q"""{

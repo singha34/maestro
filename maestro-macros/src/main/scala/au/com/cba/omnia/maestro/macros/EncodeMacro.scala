@@ -14,7 +14,7 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import scala.reflect.macros.Context
+import scala.reflect.macros.whitebox.Context
 
 import com.twitter.scrooge.ThriftStruct
 
@@ -30,7 +30,7 @@ object EncodeMacro {
     import c.universe._
 
     val typ       = weakTypeOf[A]
-    val companion = typ.typeSymbol.companionSymbol
+    val companion = typ.typeSymbol.companion
     val members   = Inspect.methods[A](c)
 
     def encode(xs: List[MethodSymbol]): List[Tree] = xs.map { x =>

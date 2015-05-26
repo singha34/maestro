@@ -14,7 +14,7 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import scala.reflect.macros.Context
+import scala.reflect.macros.whitebox.Context
 
 import com.twitter.scrooge.ThriftStruct
 
@@ -29,7 +29,6 @@ object Inspect {
 
   /** Same as indexed but for any type where the type is assumed to be ThriftStruct.*/
   def indexedUnsafe(c: Context)(typ: c.universe.Type): List[(c.universe.MethodSymbol, Int)] = {
-    import c.universe._
     typ.members.toList.map(member => (member, member.name.toString)).collect({
       case (member, ProductField(n)) =>
         (member.asMethod, n.toInt)
@@ -47,12 +46,12 @@ object Inspect {
     val fields =
       if (typ <:< c.universe.weakTypeOf[HumbugThriftStruct]) {
         // Get the fields in declaration order
-        typ.declarations.sorted.toList.collect {
+        typ.decls.sorted.toList.collect {
           case sym: TermSymbol if sym.isVar => sym.name.toString.trim.capitalize
         }
       } else
-        typ.typeSymbol.companionSymbol.typeSignature
-          .member(newTermName("apply")).asMethod.paramss.head.map(_.name.toString.capitalize)
+        typ.typeSymbol.companion.typeSignature
+          .member(TermName("apply")).asMethod.paramLists.head.map(_.name.toString.capitalize)
 
     methodsUnsafe(c)(typ).zip(fields)
   }

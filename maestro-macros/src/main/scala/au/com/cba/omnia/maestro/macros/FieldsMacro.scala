@@ -14,7 +14,7 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import scala.reflect.macros.Context
+import scala.reflect.macros.whitebox.Context
 import scala.annotation.StaticAnnotation
 
 import com.twitter.scrooge.ThriftStruct
@@ -31,24 +31,24 @@ object FieldsMacro {
 
     val typ        = c.universe.weakTypeOf[A]
     val entries    = Inspect.fields[A](c)
-    val companion  = typ.typeSymbol.companionSymbol
-    val nameGetter = newTermName("name")
-    val idGetter   = newTermName("id")
+    val companion  = typ.typeSymbol.companion
+    val nameGetter = TermName("name")
+    val idGetter   = TermName("id")
     
     val fields = entries.map({
       case (method, field) =>
-        val term    = q"""$companion.${newTermName(field + "Field")}"""
+        val term    = q"""$companion.${TermName(field + "Field")}"""
         val srcName = q"""$term.$nameGetter"""
         val srcId   = q"""$term.$idGetter"""
 
         val get     = q"""au.com.cba.omnia.maestro.core.data.Accessor[${method.returnType}]($srcId)"""
         val fld     = q"""au.com.cba.omnia.maestro.core.data.Field[$typ, ${method.returnType}]($srcName,$get)"""
         
-        q"""val ${newTermName(field)} = $fld"""
+        q"""val ${TermName(field)} = $fld"""
     })
     val refs = entries.map({
       case (method, field) =>
-        val n = newTermName(field)
+        val n = TermName(field)
         q"$n"
     })
     val r =q"class FieldsWrapper { ..$fields; def AllFields = List(..$refs) }; new FieldsWrapper {}"

@@ -14,8 +14,8 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import scala.reflect.macros.Context
-import scala.util.{Failure, Success}
+import scala.reflect.macros.whitebox.Context
+import scala.util.{Try, Failure, Success}
 
 object MacroUtils {
   /** Returns `Some(t)` iff `o` is `Option[T]` else returns `None`. */
@@ -43,15 +43,15 @@ object MacroUtils {
   def compileErrors(code: String): Option[String] = macro compileErrorsImpl
 
   def compileErrorsImpl(c:Context)(code: c.Expr[String]):c.Expr[Option[String]] = {
-    import c.universe._
+    import c.universe.{Try => _, _}
 
     val Expr(Literal(Constant(codeStr: String))) = code
-    val attemptToTypecheck = scala.util.Try(c.typeCheck(c.parse(s"{ val ${newTermName(c.fresh)} = { $codeStr } }")))
+    val attemptToTypecheck = Try(c.typecheck(c.parse(s"{ val ${TermName(c.freshName)} = { $codeStr } }")))
 
 
-    val errors:Option[String] = attemptToTypecheck match {
+    val errors: Option[String] = attemptToTypecheck match {
       case Failure(e) => Some(e.getMessage)
-      case _          => None
+      case Success(_) => None
     }
     c.Expr[Option[String]](q"${errors}")
   }

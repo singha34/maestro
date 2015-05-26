@@ -14,7 +14,7 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import scala.reflect.macros.Context
+import scala.reflect.macros.whitebox.Context
 
 import com.twitter.scrooge.ThriftStruct
 
@@ -77,7 +77,7 @@ object ScroogeDecodeMacro {
 
     val typ       = weakTypeOf[A]
     val typeName  = typ.toString
-    val companion = typ.typeSymbol.companionSymbol
+    val companion = typ.typeSymbol.companion
     val members   = Inspect.indexed[A](c)
     val size      = members.length
 
@@ -101,7 +101,7 @@ object ScroogeDecodeMacro {
       }
     """
 
-    def build(args: List[Tree]) = Apply(Select(Ident(companion), newTermName("apply")), args)
+    def build(args: List[Tree]) = Apply(Select(Ident(companion), TermName("apply")), args)
 
     def decodeUnknowns(xs: List[(MethodSymbol, Int)]): List[Tree] = xs.map { case (x, i) =>
       val index = i - 1
@@ -112,7 +112,7 @@ object ScroogeDecodeMacro {
             else                        Option(fields($index))
           """
         else {
-          val method = newTermName("to" + param)
+          val method = TermName("to" + param)
           val tag    = s"Option[$param]"
           q"""{
             tag   = $tag
@@ -126,7 +126,7 @@ object ScroogeDecodeMacro {
       } getOrElse {
         if (x.returnType == stringType) q"fields($index)"
         else {
-          val method = newTermName("to" + x.returnType)
+          val method = TermName("to" + x.returnType)
           val tag    = x.returnType.toString
           q"""{
             tag   = $tag

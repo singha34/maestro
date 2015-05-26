@@ -14,9 +14,10 @@
 
 package au.com.cba.omnia.maestro.macros
 
-import scala.reflect.macros.Context
+import scala.reflect.macros.whitebox.Context
 
-import scalaz._, scalaz.syntax.either._
+import scalaz.{\/, -\/, \/-, NonEmptyList}
+import scalaz.syntax.either._
 
 import com.twitter.scrooge.ThriftStruct
 
@@ -40,7 +41,6 @@ import au.com.cba.omnia.maestro.core.transform.Join
   * - Every matching input field's type conforms to the type of it's output field.
   */
 object JoinMacro {
-
   type Fails[A] = String \/ A
 
   def impl[A <: Product : c.WeakTypeTag, B <: ThriftStruct : c.WeakTypeTag](c: Context)
@@ -62,16 +62,16 @@ object JoinMacro {
 
     def thriftType(typ: Type): ThriftType =
       ThriftType(typ, Inspect.fieldsUnsafe(c)(typ).map { case (method, name) =>
-        ThriftField(newTermName(decapitalize(name)), method.typeSignatureIn(typ))
+        ThriftField(TermName(decapitalize(name)), method.typeSignatureIn(typ))
       })
 
     // get the thrift structures from the input type, or fail if the input type is not a product of thrift structs
     def thriftInputs(inTyp: Type): Fails[List[ThriftInput]] = {
-      val thriftInputs = inTyp.declarations collect {
+      val thriftInputs = inTyp.decls collect {
         case sym: TermSymbol if sym.isVal && sym.isCaseAccessor => {
           val typ = sym.typeSignatureIn(inTyp)
           if (typ <:< weakTypeOf[ThriftStruct])
-            ThriftInput(newTermName(sym.name.toString.trim), thriftType(typ)).right
+            ThriftInput(TermName(sym.name.toString.trim), thriftType(typ)).right
           else
             s"$typ is not a thrift struct".left
         }
@@ -127,10 +127,10 @@ object JoinMacro {
           val tailValues = tail map { case (input, field) =>
             q"""$inpTerm.${input.name}.${field.name}"""
           }
-          val errorDetails = (head :: tail) map { case (input, field) => {
-            val strLit = c.literal(s"${input.thrift.typ.typeSymbol.name}.${field.name} = ")
+          val errorDetails = (head :: tail) map { case (input, field) =>
+            val strLit = s"${input.thrift.typ.typeSymbol.name}.${field.name} = "
             q"""$strLit + $inpTerm.${input.name}.${field.name}"""
-          }}
+          }
           val condition = tailValues
             .map(tailValue => q"""$headValue == $tailValue""")
             .reduce((condition1,condition2) => q"""$condition1 && $condition2""")
@@ -156,7 +156,7 @@ object JoinMacro {
      *   )
      */
     def scroogeTree(inpTerm: TermName, outputType: Type, mappings: List[Mapping]): Tree = {
-      val companion = outputType.typeSymbol.companionSymbol
+      val companion = outputType.typeSymbol.companion
       val params    = mappings.map(mapping => q"""${mapping.dest.name} = ${unambSource(inpTerm, mapping)}""")
       q"""$companion.apply(..$params)"""
     }
@@ -170,7 +170,7 @@ object JoinMacro {
      *   output1
      */
     def humbugTree(inpTerm: TermName, outputType: Type, mappings: List[Mapping]): Tree = {
-      val out     = newTermName(c.fresh("output"))
+      val out     = TermName(c.freshName("output"))
       val setters = mappings.map(mapping => q"""$out.${mapping.dest.name} = ${unambSource(inpTerm, mapping)}""")
       q"""
       val $out = new $outputType
@@ -192,7 +192,7 @@ object JoinMacro {
      *   )
      */
     def joinTree(inputType: Type, output: ThriftType, inputs: List[ThriftInput], mappings: List[Mapping]): Tree = {
-      val inpTerm   = newTermName(c.fresh("input"))
+      val inpTerm   = TermName(c.freshName("input"))
       val struct    = if (output.typ <:< weakTypeOf[HumbugThriftStruct]) humbugTree(inpTerm, output.typ, mappings)
                       else                                               scroogeTree(inpTerm, output.typ, mappings)
 

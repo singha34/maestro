@@ -15,9 +15,11 @@
 package au.com.cba.omnia.maestro.macros
 
 import scala.annotation.StaticAnnotation
-import scala.reflect.macros.{Context, TypecheckException}
+import scala.reflect.macros.TypecheckException
+import scala.reflect.macros.whitebox.Context
 import scala.language.experimental.macros
 import scala.collection.immutable.StringOps
+
 import scalaz.\/
 import scalaz.syntax.either._
 
@@ -33,7 +35,7 @@ import scalaz.syntax.either._
   * transformation rules and annotate it with @automapper. The macro fills in the method with the
   * required logic. A simple use of the automapper annotation macro might look like this:
   * 
-  *   @automap def mkFooBar (foo: Foo, bar: Bar): FooBar = {
+  *   @automap def mkFooBar(foo: Foo, bar: Bar): FooBar = {
   *       thisInt    := foo.thatInt
   *       thisString := bar.thatString
   *   }
@@ -44,7 +46,7 @@ import scalaz.syntax.either._
   *
   * Scrooge implementations generate constructors in the style of case classes:
   *
-  *   def mkFooBar (in: (Foo, Bar)): FooBar = in match {
+  *   def mkFooBar(in: (Foo, Bar)): FooBar = in match {
   *     case (foo, bar) => FooBar (x          = foo.x,
   *                                y          = if (foo.y == bar.y) foo.y
   *                                             else throw new IllegalArgumentException,
@@ -55,7 +57,7 @@ import scalaz.syntax.either._
   *
   * Humbug implementations instantiate the output object and assign values to each field:
   *
-  *   def mkFooBar (in: (Foo, Bar)): FooBar = in match {
+  *   def mkFooBar(in: (Foo, Bar)): FooBar = in match {
   *     case (foo, bar) => { val out        = new FooBar
   *                          out.x          = foo.x
   *                          out.y          = if (foo.y == bar.y) foo.y
@@ -96,7 +98,7 @@ object automap {
         // The following obscure construction seems to be the simplest way of reliably forcing
         // resolution of an externally-defined class and its companion class.
         val q"{ class $n[$ts] { type FakeType = $r; () } }" = 
-          c.typeCheck( q"{ class Dummy[T] { type FakeType = $typ; () } }" )
+          c.typecheck( q"{ class Dummy[T] { type FakeType = $typ; () } }" )
         val instance = (r.tpe.typeSymbol.name.toTypeName, name)
         val members  = getFields(r.tpe).map((_, instance))
         
@@ -108,12 +110,12 @@ object automap {
 
     /** Enumerate the methods on a type. */
     def methods(t: Type): List[MethodSymbol] =
-      t.declarations.filter(_.isMethod).map(_.asMethod).toList
+      t.decls.filter(_.isMethod).map(_.asMethod).toList
 
     /** Enumerate the fields on a struct. */
     def getFields(t: Type): List[Field] =
       if (isHumbug(t)) humbugFields(t)
-      else             scroogeFields(t.typeSymbol.companionSymbol.typeSignature)
+      else             scroogeFields(t.typeSymbol.companion.typeSignature)
 
     /** Enumerate the fields on a humbug struct. */
     def humbugFields(t: Type): List[Field] =
@@ -123,14 +125,14 @@ object automap {
 
     /** Enumerate the fields on a scrooge struct. */
     def scroogeFields(t: Type): List[Field] =
-      methods(t.member(newTypeName("Immutable")).asType.toType) // Scrooge's native representation
+      methods(t.member(TypeName("Immutable")).asType.toType) // Scrooge's native representation
        .filter(_.isGetter)
        .filter(_.name.toTermName.toString.charAt(0) != '_') // Ignore meta fields
        .map(m => (m.returnType.typeSymbol.name.toTypeName, m.name.toTermName))
 
     /** Get the list of user-defined field mappings. */
     def getOverrides(xs: List[Tree]): Map[TermName, Tree] =
-      xs.map { case q"$x := $expr" => (newTermName(x.toString), expr) }.toMap
+      xs.map { case q"$x := $expr" => (TermName(x.toString), expr) }.toMap
 
     //
     // Code generation stage
@@ -198,7 +200,7 @@ object automap {
       overrides: Map[TermName, Tree]
     ): Tree = 
       cq"""${showArgMatch(from)} => 
-        ${newTermName(to.typeSymbol.name.toString)} (..${autos.map{case (fld, xs) => showPassAuto(fld, xs)} ++ overrides.map(showPassOverride)})"""
+        ${TermName(to.typeSymbol.name.toString)} (..${autos.map{case (fld, xs) => showPassAuto(fld, xs)} ++ overrides.map(showPassOverride)})"""
 
     //
     // Computation stage
@@ -228,12 +230,12 @@ object automap {
     def mkMapper(src: Tree): Seq[AutomapError] \/ Tree = {
       val q"def $name (..$srcArgs): $srcTo = $srcBody" = src
       val srcRules = srcBody match {
-        case Block(xs,x)  => x :: xs
+        case Block(xs, x) => x :: xs
         case _            => Nil
       }
 
-      val (from, inputs) = srcArgs.map{ case q"$m val $x: $t = $v" => inspectTermType(t, x) }.unzip
-      val (to, outputs)  = inspectTermType(srcTo, newTermName("out"))
+      val (from, inputs) = srcArgs.map { case q"$_ val $x: $t = $_" => inspectTermType(t, x) }.unzip
+      val (to, outputs)  = inspectTermType(srcTo, TermName("out"))
       val overrides      = getOverrides(srcRules)
       val autosOrErrors  = automap(priorityMap(inputs.flatten), outputs, overrides)
 
@@ -262,6 +264,6 @@ object automap {
 }
 
 class automap(xs: Any*) extends StaticAnnotation {
-  def macroTransform(annottees: Any*) = macro automap.impl
+  def macroTransform(annottees: Any*): Any = macro automap.impl
 }
 
