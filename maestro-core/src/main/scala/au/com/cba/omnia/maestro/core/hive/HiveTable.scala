@@ -129,13 +129,13 @@ case class PartitionedHiveTable[A <: ThriftStruct : Manifest, B : Manifest : Tup
         dst <- setup
 
         // Get list of original parquet files
-        oldFiles <- Execution.fromHdfs(find(dst, "*.parquet"))
+        oldFiles <- Execution.fromHdfs(find(dst, "[^_]*"))
 
         // Run job
         counters <- write(externalPath)
 
         // Updated list of all parquet files, including obsolete
-        allFiles <- Execution.fromHdfs(find(dst, "*.parquet"))
+        allFiles <- Execution.fromHdfs(find(dst, "[^_]*"))
 
         // Files which were created by this job
         newFiles = allFiles.filterNot(oldFiles.toSet)
